@@ -10,18 +10,18 @@ import (
 type Mysql struct {
 	Username     string `mapstructure:"username" json:"username" yaml:"username"`
 	Password     string `mapstructure:"password" json:"password" yaml:"password"`
-	Path         string `mapstructure:"path" json:"path" yaml:"path"`
-	Dbname       string `mapstructure:"db-name" json:"dbname" yaml:"db-name"`
+	Host         string `mapstructure:"host" json:"host" yaml:"host"`
+	Dbname       string `mapstructure:"db" json:"db" yaml:"db"`
 	Config       string `mapstructure:"config" json:"config" yaml:"config"`
 	MaxIdleConns int    `mapstructure:"max-idle-conns" json:"maxIdleConns" yaml:"max-idle-conns"`
 	MaxOpenConns int    `mapstructure:"max-open-conns" json:"maxOpenConns" yaml:"max-open-conns"`
-	LogMode      bool   `mapstructure:"log-mode" json:"logMode" yaml:"log-mode"`
+	LogMode      bool   `mapstructure:"log" json:"log" yaml:"log"`
 }
 
 // 初始化数据库并产生数据库全局变量
 func initMysql() {
 	admin := sysConf().Mysql
-	if db, err := gorm.Open("mysql", admin.Username+":"+admin.Password+"@("+admin.Path+")/"+admin.Dbname+"?"+admin.Config); err != nil {
+	if db, err := gorm.Open("mysql", admin.Username+":"+admin.Password+"@("+admin.Host+")/"+admin.Dbname+"?"+admin.Config); err != nil {
 		panic(fmt.Sprintf("MySQL启动异常, %v", err))
 	} else {
 		_db = db

@@ -14,8 +14,13 @@ import (
 )
 
 var _localeContextKey = "_locale"
-var _defaultLocale Locale
+var _defaultLocale = Locale{Locale: i18n.Locale{Lang: LangZhCN}}
 var _defaultOptions I18nOptions
+
+var (
+	LangZhCN = "zh-CN"
+	LangZhTW = "zh-TW"
+)
 
 // isFile returns true if given path is a file,
 // or returns false when it's a directory or does not exist.
@@ -102,6 +107,10 @@ func initI18n() {
 	i18n.SetDefaultLang(opt.DefaultLang)
 	opt.Directory = "config/locale"
 	opt.Format = "%s.ini"
+
+	if opt.DefaultLang == "" {
+		opt.DefaultLang = LangZhCN
+	}
 
 	_defaultLocale = Locale{Locale: i18n.Locale{Lang: opt.DefaultLang}}
 	_defaultOptions = opt

@@ -1,0 +1,17 @@
+mysql:
+  username: root
+  password: 123456
+  host: 127.0.0.1
+  db: test
+  max-idle-conns: 10
+  max-open-conns: 30
+  log: true
+redis:
+
+system:
+
+captcha:
+
+log:
+
+i18n:

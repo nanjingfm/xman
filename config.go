@@ -6,12 +6,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-const _sysConfigFile = "config/sys.yaml"
-const _appConfigFile = "config/app.yaml"
+var _sysConfigFile = "config/sys.yaml"
+var _appConfigFile = "config/app.yaml"
 
 type Server struct {
 	Mysql   Mysql       `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
-	Sqlite  Sqlite      `mapstructure:"sqlite" json:"sqlite" yaml:"sqlite"`
 	Redis   Redis       `mapstructure:"redis" json:"redis" yaml:"redis"`
 	System  System      `mapstructure:"system" json:"system" yaml:"system"`
 	Captcha Captcha     `mapstructure:"captcha" json:"captcha" yaml:"captcha"`

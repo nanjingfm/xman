@@ -5,20 +5,32 @@ import (
 )
 
 var (
-	ECodeSuccess    = NewCode(0)
-	ECodeSystemErr  = NewCode(7)
-	ECodeUnknownErr = NewCode(10) // 未知错误
+	ECodeSuccess    = NewCode(1001)
+	ECodeSystemErr  = NewCode(-1) // 系统错误
+	ECodeUnknownErr = NewCode(-2) // 未知错误
 )
 
 type Coder interface {
 }
 
-func NewCode(code int) *ECode {
-	return &ECode{Code: code}
+func NewCode(code int) ECode {
+	return ECode{Code: code}
 }
 
-func NewErrorCode(err error) *ECode {
-	return &ECode{Code: 1003, Msg: err.Error()}
+func NewErrorCode(err error) ECode {
+	if err == nil {
+		return ECodeSuccess
+	}
+	var (
+		eCodeErr ECode
+		ok       bool
+	)
+	if eCodeErr, ok = err.(ECode); ok {
+		return eCodeErr
+	}
+	eCodeErr = ECodeSystemErr
+	eCodeErr.Msg = err.Error()
+	return eCodeErr
 }
 
 type ECode struct {
@@ -41,7 +53,7 @@ func (p ECode) Error() string {
 
 	codeStr := strconv.Itoa(p.Code)
 	codeMsg := _defaultLocale.Tr("code." + codeStr)
-	if codeMsg != "" {
+	if codeMsg != "" && codeMsg != codeStr {
 		return codeMsg
 	}
 	return "code: " + codeStr
