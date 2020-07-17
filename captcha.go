@@ -3,8 +3,6 @@ package xman
 import (
 	"bytes"
 	"net/http"
-	"path"
-	"strings"
 	"time"
 
 	"github.com/dchest/captcha"
@@ -18,8 +16,8 @@ type Captcha struct {
 }
 
 type SysCaptchaResponse struct {
-	CaptchaId string `json:"captchaId"`
-	PicPath   string `json:"picPath"`
+	CaptchaId string `json:"captcha_id"`
+	PicPath   string `json:"pic_path"`
 }
 
 // CaptchaVerify 验证验证码有效性
@@ -31,8 +29,8 @@ func CaptchaVerify(id string, digits string) bool {
 func registerCaptchaRouter(Router *gin.Engine) (R gin.IRoutes) {
 	BaseRouter := Router.Group("base")
 	{
-		BaseRouter.POST("captcha", captchaHandle)
-		BaseRouter.GET("captcha/:captchaId", captchaImg)
+		BaseRouter.GET("captcha", captchaHandle)
+		BaseRouter.GET("captcha-img", captchaImg)
 	}
 	return BaseRouter
 }
@@ -41,52 +39,32 @@ func captchaHandle(c *gin.Context) {
 	captchaId := captcha.NewLen(sysConf().Captcha.KeyLong)
 	Return(c, ECodeSuccess, SysCaptchaResponse{
 		CaptchaId: captchaId,
-		PicPath:   "/base/captcha/" + captchaId + ".png",
 	}, "验证码获取成功")
 }
 
 func captchaImg(c *gin.Context) {
-	ginCaptchaServeHTTP(c.Writer, c.Request)
-}
-
-// 这里需要自行实现captcha 的gin模式
-func ginCaptchaServeHTTP(w http.ResponseWriter, r *http.Request) {
-	dir, file := path.Split(r.URL.Path)
-	ext := path.Ext(file)
-	id := file[:len(file)-len(ext)]
-	if ext == "" || id == "" {
-		http.NotFound(w, r)
+	var (
+		captchaId string
+		reload bool
+	)
+	captchaId = c.GetString("captchaId")
+	if captchaId == "" {
+		c.Writer.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if r.FormValue("reload") != "" {
-		captcha.Reload(id)
+	reload = c.GetBool("reload")
+	if reload {
+		captcha.Reload(captchaId)
 	}
-	lang := strings.ToLower(r.FormValue("lang"))
-	download := path.Base(dir) == "download"
-	if serve(w, r, id, ext, lang, download, sysConf().Captcha.ImgWidth, sysConf().Captcha.ImgHeight) == captcha.ErrNotFound {
-		http.NotFound(w, r)
-	}
-}
-
-func serve(w http.ResponseWriter, r *http.Request, id, ext, lang string, download bool, width, height int) error {
-	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	w.Header().Set("Pragma", "no-cache")
-	w.Header().Set("Expires", "0")
+	width := sysConf().Captcha.ImgWidth
+	height := sysConf().Captcha.ImgHeight
+	header := c.Writer.Header()
+	header.Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	header.Set("Pragma", "no-cache")
+	header.Set("Expires", "0")
+	header.Set("Content-Type", "image/png")
+	header.Set("Content-Type", "application/octet-stream")
 	var content bytes.Buffer
-	switch ext {
-	case ".png":
-		w.Header().Set("Content-Type", "image/png")
-		_ = captcha.WriteImage(&content, id, width, height)
-	case ".wav":
-		w.Header().Set("Content-Type", "audio/x-wav")
-		_ = captcha.WriteAudio(&content, id, lang)
-	default:
-		return captcha.ErrNotFound
-	}
-
-	if download {
-		w.Header().Set("Content-Type", "application/octet-stream")
-	}
-	http.ServeContent(w, r, id+ext, time.Time{}, bytes.NewReader(content.Bytes()))
-	return nil
+	_ = captcha.WriteImage(&content, captchaId, width, height)
+	http.ServeContent(c.Writer, c.Request, captchaId+".ext", time.Time{}, bytes.NewReader(content.Bytes()))
 }
