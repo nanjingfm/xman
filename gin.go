@@ -22,7 +22,7 @@ func NewEngine() *Engine {
 
 	r.Use(Cors())            // 跨域
 	r.Use(I18n())            // 多语言
-	registerCaptchaRouter(r) // 注册验证码相关路由
+	RegisterCaptchaRouter(r) // 注册验证码相关路由
 
 	return &Engine{Engine: r}
 }

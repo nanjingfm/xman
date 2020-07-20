@@ -1,40 +1,73 @@
 package xman
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/dchest/captcha"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"github.com/tidwall/gjson"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestFetchCaptcha(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
-	registerCaptchaRouter(engine)
+	RegisterCaptchaRouter(engine)
 	r := httptest.NewRequest("GET", "/base/captcha", nil)
 	w := httptest.NewRecorder()
 	engine.ServeHTTP(w, r)
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.True(t, strings.Contains(w.Header().Get("Content-type"),"application/json"))
-	data := w.Body.String()
-
-	assert.Equal(t, int64(1001), gjson.Get(data, "code").Int())
-	assert.NotEmpty(t, gjson.Get(data, "data.captcha_id").String())
+	assert.True(t, strings.Contains(w.Header().Get("Content-type"), "image/png"))
+	assert.True(t, w.Header().Get(_captchaID) != "")
 }
 
 func TestCaptchaVerify(t *testing.T) {
-	engine := gin.New()
-	registerCaptchaRouter(engine)
-	id := captcha.New()
-	r := httptest.NewRequest("GET", "/base/captcha/"+id, nil)
+	assert.False(t, CaptchaVerify("xxxxxx", "123"))
+
+	s := captcha.NewMemoryStore(10, time.Minute)
+	captcha.SetCustomStore(s)
+	captchaID := captcha.New()
+	digits := s.Get(captchaID, false)
+	ns := make([]byte, 0)
+	for i := range digits {
+		d := digits[i]
+		switch {
+		case '0' <= d+'0' && d+'0' <= '9':
+			ns = append(ns, d+'0')
+		case d == ' ' || d == ',':
+			// ignore
+		default:
+			ns = append(ns, d)
+		}
+	}
+	assert.True(t, CaptchaVerify(captchaID, string(ns)))
+}
+
+func TestCaptchaAuth(t *testing.T) {
+	s := captcha.NewMemoryStore(10, time.Minute)
+	captcha.SetCustomStore(s)
+	captchaID := captcha.New()
+	digits := s.Get(captchaID, false)
+	ns := make([]byte, 0)
+	for i := range digits {
+		d := digits[i]
+		switch {
+		case '0' <= d+'0' && d+'0' <= '9':
+			ns = append(ns, d+'0')
+		case d == ' ' || d == ',':
+			// ignore
+		default:
+			ns = append(ns, d)
+		}
+	}
 	w := httptest.NewRecorder()
-	engine.ServeHTTP(w, r)
-	data := w.Body.String()
-	spew.Dump(data)
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.True(t, strings.Contains(w.Header().Get("Content-type"),"application/json"))
+	c, _ := gin.CreateTestContext(w)
+	c.Request, _ = http.NewRequest("GET", "/", nil)
+	c.Request.Header.Set(_captchaID, captchaID)
+	c.Request.Header.Set(_captchaValue, string(ns))
+	f := CaptchaAuth()
+	f(c)
+	assert.Equal(t, 200, c.Writer.Status())
 }

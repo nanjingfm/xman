@@ -8,6 +8,7 @@ var (
 	ECodeSuccess    = NewCode(1001)
 	ECodeSystemErr  = NewCode(-1) // 系统错误
 	ECodeUnknownErr = NewCode(-2) // 未知错误
+	ECodeCaptchaErr = NewCode(-3) // 验证码错误
 )
 
 type Coder interface {
