@@ -1,8 +1,11 @@
 package xman
 
 import (
+	"errors"
 	"github.com/go-redis/redis"
 )
+
+var InvalidRedisConfig = errors.New("invalid redis Config")
 
 type Redis struct {
 	Addr     string `mapstructure:"addr" json:"addr" yaml:"addr"`
@@ -10,8 +13,15 @@ type Redis struct {
 	DB       int    `mapstructure:"db" json:"db" yaml:"db"`
 }
 
+func (p *Redis) isValid() bool {
+	return p.Addr != ""
+}
+
 func initRedis() {
 	redisCfg := sysConf().Redis
+	if !redisCfg.isValid() {
+		panic(InvalidRedisConfig)
+	}
 	client := redis.NewClient(&redis.Options{
 		Addr:     redisCfg.Addr,
 		Password: redisCfg.Password, // no password set

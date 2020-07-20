@@ -6,7 +6,9 @@ mysql:
   max-idle-conns: 10
   max-open-conns: 30
   log: true
+
 redis:
+  addr: 127.0.0.1
 
 system:
 
