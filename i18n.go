@@ -3,7 +3,6 @@ package xman
 // Package i18n provides an Internationalization and Localization middleware for Macaron applications.
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"path"
 	"strings"
@@ -105,8 +104,14 @@ func initI18n() {
 		panic("length of langs is not same as length of names")
 	}
 	i18n.SetDefaultLang(opt.DefaultLang)
-	opt.Directory = "config/locale"
-	opt.Format = "%s.ini"
+
+	if opt.Directory == "" {
+		opt.Directory = "config/locale"
+	}
+
+	if opt.Format == "" {
+		opt.Format = "%s.ini"
+	}
 
 	if opt.DefaultLang == "" {
 		opt.DefaultLang = LangZhCN
@@ -124,34 +129,25 @@ type LangType struct {
 func I18n() gin.HandlerFunc {
 	m := initLocales(_defaultOptions)
 	return func(ctx *gin.Context) {
-		isNeedRedir := false
-		hasCookie := false
-
 		// 1. Check URL arguments.
 		lang := ctx.Query(_defaultOptions.Parameter)
 
 		// 2. Get language information from cookies.
-		if len(lang) == 0 {
+		if lang == "" {
 			lang, _ = ctx.Cookie("lang")
-			hasCookie = true
-		} else {
-			isNeedRedir = true
-		}
-
-		// Check again in case someone modify by purpose.
-		if !i18n.IsExist(lang) {
-			lang = ""
-			isNeedRedir = false
-			hasCookie = false
 		}
 
 		// 3. Get language information from 'Accept-Language'.
 		// The first element in the list is chosen to be the default language automatically.
-		if len(lang) == 0 {
+		if lang == "" {
 			tags, _, _ := language.ParseAcceptLanguage(ctx.Request.Header.Get("Accept-Language"))
 			tag, _, _ := m.Match(tags...)
 			lang = tag.String()
-			isNeedRedir = false
+		}
+
+		// Check again in case someone modify by purpose.
+		if !i18n.IsExist(lang) {
+			lang = _defaultOptions.DefaultLang
 		}
 
 		curLang := LangType{
@@ -159,26 +155,10 @@ func I18n() gin.HandlerFunc {
 		}
 
 		// Save language information in cookies.
-		if !hasCookie {
-			ctx.SetCookie("lang", curLang.Lang, 1<<31-1, "/"+strings.TrimPrefix(_defaultOptions.SubURL, "/"),
-				_defaultOptions.CookieDomain, false, false)
-		}
-
-		restLangs := make([]LangType, 0, i18n.Count()-1)
-		langs := i18n.ListLangs()
-		names := i18n.ListLangDescs()
-		for i, v := range langs {
-			if lang != v {
-				restLangs = append(restLangs, LangType{v, names[i]})
-			} else {
-				curLang.Name = names[i]
-			}
-		}
+		ctx.SetCookie("lang", curLang.Lang, 1<<31-1, "/"+strings.TrimPrefix(_defaultOptions.SubURL, "/"),
+			_defaultOptions.CookieDomain, false, false)
 
 		// Set language properties.
 		ctx.Set(_localeContextKey, Locale{Locale: i18n.Locale{Lang: lang}})
-		if _defaultOptions.Redirect && isNeedRedir {
-			ctx.Redirect(http.StatusMovedPermanently, _defaultOptions.SubURL+path.Clean(ctx.Request.RequestURI[:strings.Index(ctx.Request.RequestURI, "?")]))
-		}
 	}
 }

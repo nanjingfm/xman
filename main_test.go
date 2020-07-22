@@ -8,7 +8,7 @@ import (
 )
 
 func TestMain(t *testing.M) {
-	_ = i18n.SetMessage(LangZhCN, "./testdata/locale/locale_zh-CN.ini")
+	_ = i18n.SetMessage(LangZhCN, "./testdata/config/locale/zh-CN.ini")
 	t.Run()
 }
 
