@@ -16,48 +16,46 @@ const (
 )
 
 type Server struct {
-	Mysql   Mysql       `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
-	Redis   Redis       `mapstructure:"redis" json:"redis" yaml:"redis"`
-	System  System      `mapstructure:"system" json:"system" yaml:"system"`
-	Captcha Captcha     `mapstructure:"captcha" json:"captcha" yaml:"captcha"`
-	Log     LogConfig   `mapstructure:"log" json:"log" yaml:"log"`
-	I18n    I18nOptions `mapstructure:"i18n" json:"i18n" yaml:"i18n"`
+	Mysql  Mysql       `yaml:"mysql"`
+	Redis  Redis       `yaml:"redis"`
+	System System      `yaml:"system"`
+	Log    LogConfig   `yaml:"log"`
+	I18n   I18nOptions `yaml:"i18n"`
 }
 
 type System struct {
-	UseMultipoint bool   `mapstructure:"use-multipoint" json:"useMultipoint" yaml:"use-multipoint"`
-	Env           Env    `mapstructure:"env" json:"env" yaml:"env"`
-	Addr          int    `mapstructure:"addr" json:"addr" yaml:"addr"`
-	DbType        string `mapstructure:"db-type" json:"dbType" yaml:"db-type"`
-	SigningKey    string `mapstructure:"signing-key" json:"signingKey" yaml:"signing-key"`
+	Env        Env    `yaml:"env"`
+	Addr       int    `yaml:"addr"`
+	SigningKey string `yaml:"signing-key"`
 }
 
-func initConfig() {
-	initSysConfig()
-	initAppConfig()
-}
-
-func initAppConfig() {
+func NewAppConfig(configPath string) *viper.Viper {
+	if configPath == "" {
+		configPath = _appConfigFile
+	}
 	vp := viper.New()
-	vp.SetConfigFile(_appConfigFile)
+	vp.SetConfigFile(configPath)
 	err := vp.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	//vp.Debug()
-	//vp.WatchConfig()
-	_appConfig = vp
+	return vp
 }
 
-// initSysConfig 系统参数配置
-func initSysConfig() {
+// NewSysConfig 系统参数配置
+func NewSysConfig(configPath string) Server {
+	if configPath == "" {
+		configPath = _appConfigFile
+	}
 	vp := viper.New()
-	vp.SetConfigFile(_sysConfigFile)
+	vp.SetConfigFile(configPath)
 	err := vp.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	if err := vp.Unmarshal(&_config); err != nil {
-		fmt.Println(err)
+	config := Server{}
+	if err := vp.Unmarshal(&config); err != nil {
+		panic(fmt.Errorf("Fatal error unmarshal config file: %s \n", err))
 	}
+	return config
 }

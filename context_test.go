@@ -12,7 +12,7 @@ var _ = ginkgo.Describe("Context", func() {
 		ginkgo.It("return default locale", func() {
 			ginCtx := &gin.Context{}
 			c := ParseContext(ginCtx)
-			Expect(c.Locale).To(Equal(_defaultLocale))
+			Expect(c.Locale).To(Equal(_globalLocale))
 		})
 
 		ginkgo.It("return ch locale", func() {

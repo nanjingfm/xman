@@ -1,7 +1,8 @@
-package xman
+package plugins
 
 import (
 	"bytes"
+	"github.com/nanjingfm/xman"
 	"net/http"
 	"time"
 
@@ -10,18 +11,20 @@ import (
 )
 
 const (
-	_captchaID    = "x-captcha-id"
-	_captchaValue = "x-captcha-value"
+	_captchaID     = "x-captcha-id"
+	_captchaValue  = "x-captcha-value"
+	_defaultWidth  = 300
+	_defaultHeight = 100
 )
 
 type Captcha struct {
-	KeyLong int `mapstructure:"key-long" json:"key-long" yaml:"key-long"`
+	KeyLong int `yaml:"key-long"`
 	CaptchaSize
 }
 
 type CaptchaSize struct {
-	Width  int `mapstructure:"width" json:"width" form:"width" yaml:"width"`
-	Height int `mapstructure:"height" json:"height" form:"height" yaml:"height"`
+	Width  int `form:"width" yaml:"width"`
+	Height int `form:"height" yaml:"height"`
 }
 
 type SysCaptchaResponse struct {
@@ -48,11 +51,11 @@ func captchaHandle(c *gin.Context) {
 	size := CaptchaSize{}
 	_ = c.BindQuery(&size)
 	if size.Width == 0 {
-		size.Width = sysConf().Captcha.Width
+		size.Width = _defaultWidth
 	}
 
 	if size.Height == 0 {
-		size.Height = sysConf().Captcha.Height
+		size.Height = _defaultHeight
 	}
 
 	if size.Width == 0 {
@@ -63,12 +66,7 @@ func captchaHandle(c *gin.Context) {
 		size.Height = 50
 	}
 
-	l := sysConf().Captcha.KeyLong
-	if l == 0 {
-		l = 4
-	}
-
-	captchaId := captcha.NewLen(l)
+	captchaId := captcha.NewLen(4) // TODO
 	header := c.Writer.Header()
 	header.Set(_captchaID, captchaId)
 
@@ -89,7 +87,7 @@ func CaptchaAuth() gin.HandlerFunc {
 		digits := c.GetHeader(_captchaValue)
 		c.Writer.Header().Del(_captchaValue)
 		if captchaID == "" || digits == "" || !CaptchaVerify(captchaID, digits) {
-			Return(c, ECodeCaptchaErr, nil)
+			xman.Return(c, xman.ECodeCaptchaErr, nil)
 			c.Abort()
 			return
 		}

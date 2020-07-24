@@ -1,63 +1,38 @@
 package xman
 
 import (
-	"github.com/go-redis/redis"
-	"github.com/jinzhu/gorm"
-	oplogging "github.com/op/go-logging"
-	"github.com/spf13/viper"
+	"github.com/unknwon/i18n"
 	"go.uber.org/zap"
 )
 
 var (
-	_db        *gorm.DB
-	_cache     *redis.Client
-	_config    Server
-	_appConfig *viper.Viper
-	_log       *oplogging.Logger
-	_logger    *zap.SugaredLogger
+	_globalLocale = Locale{Locale: i18n.Locale{Lang: LangZhCN}}
+	_globalLogger = NewLogDev(_defaultLogConfig)
 )
 
-func Conf() *viper.Viper {
-	return _appConfig
-}
-
-func LoadConf(i interface{}) error {
-	c := Conf()
-	if err := c.Unmarshal(i); err != nil {
-		return err
+func SetLogger(logger *zap.SugaredLogger) {
+	if logger == nil {
+		panic("SugaredLogger nil error")
 	}
-
-	return nil
+	_globalLogger = logger
 }
 
-func DB() *gorm.DB {
-	return _db
+func SetLocale(config I18nOptions) {
+	_globalLocale = newI18n(config)
 }
 
-func Cache() *redis.Client {
-	return _cache
-}
-
-func sysConf() Server {
-	return _config
-}
-
-func IsDev() bool {
-	return sysConf().System.Env == EnvDev
-}
-
-func IsProd() bool {
-	return sysConf().System.Env == EnvProd
+func Tr(format string, args ...interface{}) string {
+	return _globalLocale.Tr(format, args)
 }
 
 func LogError(msg string, args ...interface{}) {
-	_logger.Errorw(msg, args...)
+	_globalLogger.Errorw(msg, args...)
 }
 
 func LogInfo(msg string, args ...interface{}) {
-	_logger.Infow(msg, args...)
+	_globalLogger.Infow(msg, args...)
 }
 
 func LogDebug(msg string, args ...interface{}) {
-	_logger.Debugw(msg, args...)
+	_globalLogger.Debugw(msg, args...)
 }

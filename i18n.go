@@ -13,8 +13,13 @@ import (
 )
 
 var _localeContextKey = "_locale"
-var _defaultLocale = Locale{Locale: i18n.Locale{Lang: LangZhCN}}
-var _defaultOptions I18nOptions
+var _defaultOptions = I18nOptions{
+	Format:      "%s.ini",
+	Directory:   "./config/locale/",
+	Langs:       []string{LangZhCN},
+	DefaultLang: LangZhCN,
+	Names:       []string{"简体中文"},
+}
 
 var (
 	LangZhCN = "zh-CN"
@@ -72,53 +77,51 @@ func (l Locale) Language() string {
 // I18nOptions represents a struct for specifying configuration options for the i18n middleware.
 type I18nOptions struct {
 	// Suburl of path. Default is empty.
-	SubURL string `mapstructure:"sub-url" json:"sub-url" yaml:"sub-url"`
+	SubURL string `yaml:"sub-url"`
 	// Directory to load locale files. Default is "conf/locale"
-	Directory string `mapstructure:"directory" json:"directory" yaml:"directory"`
+	Directory string `yaml:"directory"`
 	// File stores actual data of locale files. Used for in-memory purpose.
-	Files map[string][]byte `mapstructure:"files" json:"files" yaml:"files"`
+	Files map[string][]byte `yaml:"files"`
 	// Custom directory to overload locale files. Default is "custom/conf/locale"
-	CustomDirectory string `mapstructure:"custom-directory" json:"custom-directory" yaml:"custom-directory"`
+	CustomDirectory string `yaml:"custom-directory"`
 	// Langauges that will be supported, order is meaningful.
-	Langs []string `mapstructure:"langs" json:"langs" yaml:"langs"`
+	Langs []string `yaml:"langs"`
 	// Human friendly names corresponding to Langs list.
-	Names []string `mapstructure:"names" json:"names" yaml:"names"`
+	Names []string `yaml:"names"`
 	// Default language locale, leave empty to remain unset.
-	DefaultLang string `mapstructure:"default-lang" json:"default-lang" yaml:"default-lang"`
+	DefaultLang string `yaml:"default-lang"`
 	// Locale file naming style. Default is "locale_%s.ini".
-	Format string `mapstructure:"format" json:"format" yaml:"format"`
+	Format string `yaml:"format"`
 	// Name of language parameter name in URL. Default is "lang".
-	Parameter string `mapstructure:"parameter" json:"parameter" yaml:"parameter"`
+	Parameter string `yaml:"parameter"`
 	// Redirect when user uses get parameter to specify language.
-	Redirect bool `mapstructure:"redirect" json:"redirect" yaml:"redirect"`
+	Redirect bool `yaml:"redirect"`
 	// Domain used for `lang` cookie. Default is ""
-	CookieDomain string `mapstructure:"cookie-domain" json:"cookie-domain" yaml:"cookie-domain"`
+	CookieDomain string `yaml:"cookie-domain"`
 }
 
-func initI18n() {
-	opt := sysConf().I18n
-	opt.SubURL = strings.TrimSuffix(opt.SubURL, "/")
-	if len(opt.Langs) == 0 {
+func newI18n(config I18nOptions) Locale {
+	config.SubURL = strings.TrimSuffix(config.SubURL, "/")
+	if len(config.Langs) == 0 {
 		panic("no language is specified")
-	} else if len(opt.Langs) != len(opt.Names) {
+	} else if len(config.Langs) != len(config.Names) {
 		panic("length of langs is not same as length of names")
 	}
-	i18n.SetDefaultLang(opt.DefaultLang)
+	i18n.SetDefaultLang(config.DefaultLang)
 
-	if opt.Directory == "" {
-		opt.Directory = "config/locale"
+	if config.Directory == "" {
+		config.Directory = "config/locale"
 	}
 
-	if opt.Format == "" {
-		opt.Format = "%s.ini"
+	if config.Format == "" {
+		config.Format = "%s.ini"
 	}
 
-	if opt.DefaultLang == "" {
-		opt.DefaultLang = LangZhCN
+	if config.DefaultLang == "" {
+		config.DefaultLang = LangZhCN
 	}
 
-	_defaultLocale = Locale{Locale: i18n.Locale{Lang: opt.DefaultLang}}
-	_defaultOptions = opt
+	return Locale{Locale: i18n.Locale{Lang: config.DefaultLang}}
 }
 
 type LangType struct {

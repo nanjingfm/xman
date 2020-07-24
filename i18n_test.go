@@ -1,6 +1,7 @@
 package xman
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/gjson"
@@ -23,7 +24,9 @@ func Test_isFile(t *testing.T) {
 }
 
 func Test_initLocales(t *testing.T) {
-	matcher := initLocales(_defaultOptions)
+	op := _defaultOptions
+	op.Directory = "./testdata/config/locale/"
+	matcher := initLocales(op)
 	assert.NotNil(t, matcher)
 
 	initLocales(I18nOptions{
@@ -44,7 +47,7 @@ func TestLocale_Language(t *testing.T) {
 }
 
 func Test_initI18n(t *testing.T) {
-	_config.I18n = I18nOptions{
+	config := I18nOptions{
 		Format:    "%s.ini",
 		Directory: "./testdata/config/locale/",
 		Files: map[string][]byte{
@@ -53,13 +56,13 @@ func Test_initI18n(t *testing.T) {
 		Langs: []string{LangZhCN, LangZhTW},
 		Names: []string{"简体中文", "繁体中文"},
 	}
-	initI18n()
-	assert.Equal(t, LangZhCN, _defaultLocale.Language())
+	newI18n(config)
+	assert.Equal(t, LangZhCN, _globalLocale.Language())
 	assert.NotNil(t, _defaultOptions)
 }
 
 func TestI18n(t *testing.T) {
-	_config.I18n = I18nOptions{
+	config := I18nOptions{
 		Format: "%s.ini",
 		Files: map[string][]byte{
 			"zh-CN": []byte("aaa=111"),
@@ -69,8 +72,8 @@ func TestI18n(t *testing.T) {
 		Langs:       []string{LangZhCN, LangZhTW},
 		Names:       []string{"简体中文", "繁体中文"},
 	}
-	initI18n()
 
+	SetLocale(config)
 	gin.SetMode(gin.ReleaseMode)
 	e := gin.New()
 	e.Use(I18n())
@@ -100,5 +103,6 @@ func TestI18n(t *testing.T) {
 	_defaultOptions.Redirect = true
 	e.ServeHTTP(w3, r3)
 	assert.Equal(t, http.StatusOK, w3.Code)
+	spew.Dump(w3.Header())
 	assert.True(t, strings.Contains(w3.Header().Get("Set-Cookie"), LangZhCN))
 }

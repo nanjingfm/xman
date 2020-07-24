@@ -6,13 +6,21 @@ import (
 )
 
 func Test_initLogZap(t *testing.T) {
-	_config.System.Env = EnvDev
-	_config.Log = LogConfig{
+	config := LogConfig{
 		LogFile:  "./test.log",
 		LogLevel: zapcore.DebugLevel,
 	}
-	initLogZap()
+	NewLogDev(config)
 
 	LogError("test-error", "key1", "value1", "key2", 2)
-	LogInfo("test-info", "key1", "value1", "key2", 2, "")
+	LogInfo("test-info", "key1", "value1", "key2", 2)
+
+	config2 := LogConfig{
+		LogFile:  "./test.log",
+		LogLevel: zapcore.DebugLevel,
+	}
+	NewLogProd(config2)
+
+	LogError("test-error", "key1", "value1", "key2", 2)
+	LogInfo("test-info", "key1", "value1", "key2", 2)
 }

@@ -6,18 +6,17 @@ import (
 )
 
 func Test_initRedis(t *testing.T) {
-	_config.Redis.Addr = ""
+	config := Redis{}
 	assert.Panics(t, func() {
-		initRedis()
+		NewRedis(config)
 	}, InvalidRedisConfig.Error())
 
-	_config.Redis.Addr = "127.0.0.1:6379"
-	initRedis()
-	assert.NotNil(t, _cache)
+	config2 := Redis{Host: "127.0.0.1", Port: "6379"}
+	NewRedis(config2)
+	assert.NotNil(t, config2)
 
-	_cache = nil
-	_config.Redis.Addr = "127.0.0.1:63"
+	config3 := Redis{Host: "127.0.0.1", Port: "63719"}
 	assert.Panics(t, func() {
-		initRedis()
+		NewRedis(config3)
 	}, "Redis连接异常")
 }

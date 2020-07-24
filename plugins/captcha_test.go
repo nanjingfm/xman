@@ -1,4 +1,4 @@
-package xman
+package plugins
 
 import (
 	"github.com/dchest/captcha"

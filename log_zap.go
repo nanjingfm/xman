@@ -6,35 +6,59 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+var _defaultLogConfig = LogConfig{LogLevel: zap.InfoLevel}
+
 type LogConfig struct {
-	LogFile  string        `json:"log-file" yaml:"log-file"`
-	LogLevel zapcore.Level `json:"log-level" yaml:"log-level"`
+	LogFile  string        `yaml:"log-file"`
+	LogLevel zapcore.Level `yaml:"log-level"`
 }
 
-func initLogZap() {
+var DevLogConfig = zap.Config{
+	Development:      true,
+	Encoding:         "console",
+	OutputPaths:      []string{"stderr"},
+	ErrorOutputPaths: []string{"stderr"},
+}
+
+var ProdLogConfig = zap.Config{
+	Development:      false,
+	Encoding:         "json",
+	OutputPaths:      []string{"stderr"},
+	ErrorOutputPaths: []string{"stderr"},
+}
+
+func NewLogDev(logConfig LogConfig) *zap.SugaredLogger {
 	var (
 		err    error
 		logger *zap.Logger
 	)
-	logConfig := sysConf().Log
-	config := &zap.Config{}
-	if IsDev() {
-		config.Development = true
-		config.Encoding = "console"
-		config.OutputPaths = []string{"stderr", logConfig.LogFile}
-		config.ErrorOutputPaths = []string{"stderr"}
-	} else {
-		config.Development = false
-		config.Encoding = "json"
-		config.OutputPaths = []string{"stderr"}
-		config.ErrorOutputPaths = []string{"stderr"}
-	}
 
+	config := DevLogConfig
+	if logConfig.LogFile != "" {
+		config.OutputPaths = append(config.OutputPaths, logConfig.LogFile)
+	}
 	config.Level = zap.NewAtomicLevelAt(logConfig.LogLevel)
 	config.EncoderConfig = zap.NewProductionEncoderConfig()
 	logger, err = config.Build()
 	if err != nil {
 		panic(fmt.Sprintf("初始化logger失败，err:%v", err))
 	}
-	_logger = logger.Sugar()
+	return logger.Sugar()
+}
+
+func NewLogProd(logConfig LogConfig) *zap.SugaredLogger {
+	var (
+		err    error
+		logger *zap.Logger
+	)
+
+	config := ProdLogConfig
+	config.OutputPaths = append(config.OutputPaths, logConfig.LogFile)
+	config.Level = zap.NewAtomicLevelAt(logConfig.LogLevel)
+	config.EncoderConfig = zap.NewProductionEncoderConfig()
+	logger, err = config.Build()
+	if err != nil {
+		panic(fmt.Sprintf("初始化logger失败，err:%v", err))
+	}
+	return logger.Sugar()
 }

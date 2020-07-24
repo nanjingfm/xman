@@ -9,30 +9,28 @@ import (
 var InvalidRedisConfig = errors.New("invalid redis Config")
 
 type Redis struct {
-	Addr     string `mapstructure:"addr" json:"addr" yaml:"addr"`
-	Password string `mapstructure:"password" json:"password" yaml:"password"`
-	DB       int    `mapstructure:"db" json:"db" yaml:"db"`
+	Host     string `yaml:"addr"`
+	Port     string `yaml:"port"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
 }
 
 func (p *Redis) isValid() bool {
-	return p.Addr != ""
+	return p.Host != ""
 }
 
-func initRedis() {
-	redisCfg := sysConf().Redis
-	if !redisCfg.isValid() {
+func NewRedis(config Redis) *redis.Client {
+	if !config.isValid() {
 		panic(InvalidRedisConfig)
 	}
 	client := redis.NewClient(&redis.Options{
-		Addr:     redisCfg.Addr,
-		Password: redisCfg.Password, // no password set
-		DB:       redisCfg.DB,       // use default DB
+		Addr:     config.Host + ":" + config.Port,
+		Password: config.Password, // no password set
+		DB:       config.DB,       // use default DB
 	})
-	pong, err := client.Ping().Result()
+	_, err := client.Ping().Result()
 	if err != nil {
 		panic(fmt.Sprintf("Redis连接异常, %v", err))
-	} else {
-		LogInfo("redis connect ping response:", pong)
-		_cache = client
 	}
+	return client
 }
