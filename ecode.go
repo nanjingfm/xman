@@ -53,9 +53,5 @@ func (p ECode) Error() string {
 	}
 
 	codeStr := strconv.Itoa(p.Code)
-	codeMsg := _defaultLocale.Tr("code." + codeStr)
-	if codeMsg != "" && codeMsg != codeStr {
-		return codeMsg
-	}
-	return "code: " + codeStr
+	return "code." + codeStr
 }
