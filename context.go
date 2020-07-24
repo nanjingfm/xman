@@ -12,7 +12,7 @@ type Context struct {
 
 func ParseContext(c *gin.Context) *Context {
 	ctx := &Context{}
-	ctx.Locale = _defaultLocale
+	ctx.Locale = _globalLocale
 	if data, exist := c.Get(_localeContextKey); exist {
 		if l, ok := data.(Locale); ok {
 			ctx.Locale = l

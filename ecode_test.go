@@ -23,7 +23,7 @@ func TestECode_Error(t *testing.T) {
 		{
 			name: "without err msg",
 			Code: 10009,
-			want: "code: 10009",
+			want: "code.10009",
 		},
 	}
 	for _, tt := range tests {
@@ -69,12 +69,7 @@ func TestECode_GetMsg(t *testing.T) {
 		{
 			name: "without err msg",
 			Code: 10009,
-			want: "code: 10009",
-		},
-		{
-			name: "with translates",
-			Code: 666,
-			want: "成功",
+			want: "code.10009",
 		},
 	}
 	for _, tt := range tests {
@@ -105,7 +100,7 @@ func TestNewErrorCode(t *testing.T) {
 
 	code = NewErrorCode(NewCode(666))
 	assert.Equal(t, 666, code.GetCode())
-	assert.Equal(t, "成功", code.GetMsg())
+	assert.Equal(t, "code.666", code.GetMsg())
 
 	err := errors.New("original error")
 	w := fmt.Errorf("Wrap error:%w", err)
