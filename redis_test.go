@@ -17,6 +17,7 @@ func Test_initRedis(t *testing.T) {
 
 	_cache = nil
 	_config.Redis.Addr = "127.0.0.1:63"
-	initRedis()
-	assert.Nil(t, _cache)
+	assert.Panics(t, func() {
+		initRedis()
+	}, "Redis连接异常")
 }

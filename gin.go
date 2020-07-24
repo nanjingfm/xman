@@ -36,7 +36,8 @@ func (e *Engine) AddRoute(r func(r *gin.Engine)) {
 func (e *Engine) Run() {
 	address := fmt.Sprintf(":%d", sysConf().System.Addr)
 	LogDebug("server run success on ", address)
-	LogError(e.Engine.Run(address))
+	err := e.Engine.Run(address)
+	LogError("Run http", "err", err)
 }
 
 func LoadTls() gin.HandlerFunc {

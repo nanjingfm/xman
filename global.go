@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 	oplogging "github.com/op/go-logging"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 var (
@@ -13,6 +14,7 @@ var (
 	_config    Server
 	_appConfig *viper.Viper
 	_log       *oplogging.Logger
+	_logger    *zap.SugaredLogger
 )
 
 func Conf() *viper.Viper {
@@ -41,17 +43,21 @@ func sysConf() Server {
 }
 
 func IsDev() bool {
-	return sysConf().System.Env == "dev"
+	return sysConf().System.Env == EnvDev
 }
 
-func LogError(args ...interface{}) {
-	_log.Error()
+func IsProd() bool {
+	return sysConf().System.Env == EnvProd
 }
 
-func LogInfo(args ...interface{}) {
-	_log.Info()
+func LogError(msg string, args ...interface{}) {
+	_logger.Errorw(msg, args...)
 }
 
-func LogDebug(args ...interface{}) {
-	_log.Debug()
+func LogInfo(msg string, args ...interface{}) {
+	_logger.Infow(msg, args...)
+}
+
+func LogDebug(msg string, args ...interface{}) {
+	_logger.Debugw(msg, args...)
 }

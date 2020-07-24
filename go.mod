@@ -25,5 +25,6 @@ require (
 	github.com/tidwall/gjson v1.6.0
 	github.com/unknwon/i18n v0.0.0-20200329073805-1baf5be3c30e
 	github.com/unrolled/secure v1.0.8
+	go.uber.org/zap v1.15.0
 	golang.org/x/text v0.3.3
 )

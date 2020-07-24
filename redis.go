@@ -2,6 +2,7 @@ package xman
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-redis/redis"
 )
 
@@ -29,7 +30,7 @@ func initRedis() {
 	})
 	pong, err := client.Ping().Result()
 	if err != nil {
-		LogError(err)
+		panic(fmt.Sprintf("Redis连接异常, %v", err))
 	} else {
 		LogInfo("redis connect ping response:", pong)
 		_cache = client
