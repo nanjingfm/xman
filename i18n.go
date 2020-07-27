@@ -19,6 +19,7 @@ var _defaultOptions = I18nOptions{
 	Langs:       []string{LangZhCN},
 	DefaultLang: LangZhCN,
 	Names:       []string{"简体中文"},
+	Parameter:   "lang",
 }
 
 var (
@@ -137,7 +138,7 @@ func I18n() gin.HandlerFunc {
 
 		// 2. Get language information from cookies.
 		if lang == "" {
-			lang, _ = ctx.Cookie("lang")
+			lang, _ = ctx.Cookie(_defaultOptions.Parameter)
 		}
 
 		// 3. Get language information from 'Accept-Language'.

@@ -9,6 +9,14 @@ import (
 
 func TestMain(t *testing.M) {
 	_ = i18n.SetMessage(LangZhCN, "./testdata/config/locale/zh-CN.ini")
+	_defaultOptions = I18nOptions{
+		Format:      "%s.ini",
+		Directory:   "./testdata/config/locale",
+		Langs:       []string{LangZhCN},
+		DefaultLang: LangZhCN,
+		Names:       []string{"简体中文"},
+		Parameter:   "lang",
+	}
 	t.Run()
 }
 
