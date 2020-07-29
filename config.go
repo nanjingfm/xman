@@ -16,7 +16,7 @@ const (
 )
 
 type Server struct {
-	Mysql  Mysql       `yaml:"mysql"`
+	DB     DB          `yaml:"mysql"`
 	Redis  Redis       `yaml:"redis"`
 	System System      `yaml:"system"`
 	Log    LogConfig   `yaml:"log"`

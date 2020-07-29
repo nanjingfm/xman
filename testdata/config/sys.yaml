@@ -1,12 +1,9 @@
-mysql:
-  host: 127.0.0.1
-  port: 3306
-  username: root
-  password: 123456
-  db: test
+db:
+  dsn: root:123456@(127.0.0.1:3306)/test?charset=utf8&parseTime=True&loc=Local
   max-idle-conns: 10
   max-open-conns: 30
   log: true
+  db_type: mysql
 
 redis:
   addr: 127.0.0.1

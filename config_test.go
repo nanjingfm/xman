@@ -12,7 +12,7 @@ var _ = ginkgo.Describe("initSysConfig", func() {
 	ginkgo.Context("init sys config", func() {
 		ginkgo.It("return mysql username", func() {
 			sysConfig := NewSysConfig(_testSysConfigFile)
-			Expect(sysConfig.Mysql.Username).To(Equal("root"))
+			Expect(sysConfig.DB.DbType).To(Equal("mysql"))
 		})
 	})
 })

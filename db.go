@@ -9,20 +9,20 @@ import (
 
 var InvalidMysqlConfig = errors.New("invalid mysql Config")
 
-type Mysql struct {
-	Host         string `yaml:"host"`
-	Port         int    `yaml:"port"`
-	Username     string `yaml:"username"`
-	Password     string `yaml:"password"`
-	Dbname       string `yaml:"db"`
-	Config       string `yaml:"config"`
+type DB struct {
+	DbType       string `yaml:"db_type"`
+	Dsn          string `yaml:"dsn"`
 	MaxIdleConns int    `yaml:"max-idle-conns"`
 	MaxOpenConns int    `yaml:"max-open-conns"`
 	LogMode      bool   `yaml:"log"`
 }
 
-func (p *Mysql) isValid() bool {
-	if p.Host == "" || p.Port == 0 || p.Username == "" || p.Password == "" {
+func (p *DB) isValid() bool {
+	if p.Dsn == "" {
+		return false
+	}
+
+	if p.DbType != "mysql" && p.DbType != "mssql" {
 		return false
 	}
 
@@ -30,19 +30,11 @@ func (p *Mysql) isValid() bool {
 }
 
 // 初始化数据库并产生数据库全局变量
-func NewMysql(config Mysql) *gorm.DB {
+func NewDB(config DB) *gorm.DB {
 	if !config.isValid() {
 		panic(InvalidMysqlConfig)
 	}
-	dsn := fmt.Sprintf("%s:%s@(%s:%d)/%s?%s",
-		config.Username,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Dbname,
-		config.Config,
-	)
-	db, err := gorm.Open("mysql", dsn)
+	db, err := gorm.Open(config.DbType, config.Dsn)
 	if err != nil {
 		panic(fmt.Sprintf("MySQL链接异常, %v", err))
 	} else {
