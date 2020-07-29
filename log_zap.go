@@ -9,8 +9,8 @@ import (
 var _defaultLogConfig = LogConfig{LogLevel: zap.InfoLevel}
 
 type LogConfig struct {
-	LogFile  string        `yaml:"log-file"`
-	LogLevel zapcore.Level `yaml:"log-level"`
+	LogFile  string        `mapstructure:"log-file" yaml:"log-file"`
+	LogLevel zapcore.Level `mapstructure:"log-level" yaml:"log-level"`
 }
 
 var DevLogConfig = zap.Config{

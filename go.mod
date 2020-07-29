@@ -27,4 +27,5 @@ require (
 	github.com/unrolled/secure v1.0.8
 	go.uber.org/zap v1.15.0
 	golang.org/x/text v0.3.3
+	gopkg.in/yaml.v2 v2.3.0
 )

@@ -78,27 +78,27 @@ func (l Locale) Language() string {
 // I18nOptions represents a struct for specifying configuration options for the i18n middleware.
 type I18nOptions struct {
 	// Suburl of path. Default is empty.
-	SubURL string `yaml:"sub-url"`
+	SubURL string `mapstructure:"sub-url" yaml:"sub-url"`
 	// Directory to load locale files. Default is "conf/locale"
-	Directory string `yaml:"directory"`
+	Directory string `mapstructure:"directory" yaml:"directory"`
 	// File stores actual data of locale files. Used for in-memory purpose.
-	Files map[string][]byte `yaml:"files"`
+	Files map[string][]byte `mapstructure:"files" yaml:"files"`
 	// Custom directory to overload locale files. Default is "custom/conf/locale"
-	CustomDirectory string `yaml:"custom-directory"`
+	CustomDirectory string `mapstructure:"custom-directory" yaml:"custom-directory"`
 	// Langauges that will be supported, order is meaningful.
-	Langs []string `yaml:"langs"`
+	Langs []string `mapstructure:"langs" yaml:"langs"`
 	// Human friendly names corresponding to Langs list.
-	Names []string `yaml:"names"`
+	Names []string `mapstructure:"names" yaml:"names"`
 	// Default language locale, leave empty to remain unset.
-	DefaultLang string `yaml:"default-lang"`
+	DefaultLang string `mapstructure:"default-lang" yaml:"default-lang"`
 	// Locale file naming style. Default is "locale_%s.ini".
-	Format string `yaml:"format"`
+	Format string `mapstructure:"format" yaml:"format"`
 	// Name of language parameter name in URL. Default is "lang".
-	Parameter string `yaml:"parameter"`
+	Parameter string `mapstructure:"parameter" yaml:"parameter"`
 	// Redirect when user uses get parameter to specify language.
-	Redirect bool `yaml:"redirect"`
+	Redirect bool `mapstructure:"redirect" yaml:"redirect"`
 	// Domain used for `lang` cookie. Default is ""
-	CookieDomain string `yaml:"cookie-domain"`
+	CookieDomain string `mapstructure:"cookie-domain" yaml:"cookie-domain"`
 }
 
 func newI18n(config I18nOptions) Locale {

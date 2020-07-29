@@ -16,17 +16,17 @@ const (
 )
 
 type Server struct {
-	DB     DB          `yaml:"mysql"`
-	Redis  Redis       `yaml:"redis"`
-	System System      `yaml:"system"`
-	Log    LogConfig   `yaml:"log"`
-	I18n   I18nOptions `yaml:"i18n"`
+	DB     DB          `mapstructure:"db" yaml:"db"`
+	Redis  Redis       `mapstructure:"redis" yaml:"redis"`
+	System System      `mapstructure:"system" yaml:"system"`
+	Log    LogConfig   `mapstructure:"log" yaml:"log"`
+	I18n   I18nOptions `mapstructure:"i18n" yaml:"i18n"`
 }
 
 type System struct {
-	Env        Env    `yaml:"env"`
-	Addr       int    `yaml:"addr"`
-	SigningKey string `yaml:"signing-key"`
+	Env        Env    `mapstructure:"env" yaml:"env"`
+	Addr       int    `mapstructure:"addr" yaml:"addr"`
+	SigningKey string `mapstructure:"signing-key" yaml:"signing-key"`
 }
 
 func NewAppConfig(configPath string) *viper.Viper {
@@ -49,6 +49,7 @@ func NewSysConfig(configPath string) Server {
 	}
 	vp := viper.New()
 	vp.SetConfigFile(configPath)
+	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))

@@ -9,10 +9,10 @@ import (
 var InvalidRedisConfig = errors.New("invalid redis Config")
 
 type Redis struct {
-	Host     string `yaml:"addr"`
-	Port     string `yaml:"port"`
-	Password string `yaml:"password"`
-	DB       int    `yaml:"db"`
+	Host     string `mapstructure:"addr" yaml:"addr"`
+	Port     string `mapstructure:"port" yaml:"port"`
+	Password string `mapstructure:"password" yaml:"password"`
+	DB       int    `mapstructure:"db" yaml:"db"`
 }
 
 func (p *Redis) isValid() bool {

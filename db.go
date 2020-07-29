@@ -10,11 +10,11 @@ import (
 var InvalidMysqlConfig = errors.New("invalid mysql Config")
 
 type DB struct {
-	DbType       string `yaml:"db_type"`
-	Dsn          string `yaml:"dsn"`
-	MaxIdleConns int    `yaml:"max-idle-conns"`
-	MaxOpenConns int    `yaml:"max-open-conns"`
-	LogMode      bool   `yaml:"log"`
+	DbType       string `mapstructure:"db_type" yaml:"db_type"`
+	Dsn          string `mapstructure:"dsn" yaml:"dsn"`
+	MaxIdleConns int    `mapstructure:"max-idle-conns" yaml:"max-idle-conns"`
+	MaxOpenConns int    `mapstructure:"max-open-conns" yaml:"max-open-conns"`
+	LogMode      bool   `mapstructure:"log" yaml:"log"`
 }
 
 func (p *DB) isValid() bool {
