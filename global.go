@@ -18,6 +18,7 @@ func SetLogger(logger *zap.SugaredLogger) {
 }
 
 func SetLocale(config I18nOptions) {
+	_defaultOptions = config
 	_globalLocale = newI18n(config)
 }
 

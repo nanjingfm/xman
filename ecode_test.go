@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/unknwon/i18n"
 	"testing"
 )
 
@@ -107,4 +108,25 @@ func TestNewErrorCode(t *testing.T) {
 	code = NewErrorCode(w)
 	assert.Equal(t, ECodeSystemErr.GetCode(), code.GetCode())
 	assert.Equal(t, "Wrap error:original error", code.GetMsg())
+}
+
+func TestECode_getCodeKey(t *testing.T) {
+	c1 := NewCode(111)
+	assert.Equal(t, "code.111", c1.getCodeKey())
+
+	config := I18nOptions{
+		Format: "%s.ini",
+		Files: map[string][]byte{
+			"zh-CN": []byte("aaa=111"),
+		},
+		Directory:   "./testdata/config/locale",
+		DefaultLang: LangZhCN,
+		Langs:       []string{LangZhCN, LangZhTW},
+		Names:       []string{"简体中文", "繁体中文"},
+	}
+
+	SetLocale(config)
+	c2 := NewCode(666)
+	s := c2.GetLocaleMsg(Locale{i18n.Locale{Lang: LangZhCN}})
+	assert.Equal(t, "成功", s)
 }

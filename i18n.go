@@ -131,6 +131,7 @@ type LangType struct {
 
 // I18n is a middleware provides localization layer for your application.
 func I18n() gin.HandlerFunc {
+	//_globalLocale.
 	m := initLocales(_defaultOptions)
 	return func(ctx *gin.Context) {
 		// 1. Check URL arguments.
