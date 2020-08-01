@@ -21,7 +21,7 @@ var _ = ginkgo.Describe("initAppConfig", func() {
 	ginkgo.Context("init app config", func() {
 		ginkgo.It("return switch.mod", func() {
 			appConfig := NewAppConfig(_testAppConfigFile)
-			Expect(appConfig.Get("switch.mod")).To(Equal("prod"))
+			Expect(appConfig.Get("switch_mod")).To(Equal("prod"))
 		})
 	})
 })

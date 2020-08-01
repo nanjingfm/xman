@@ -12,7 +12,15 @@ type Response struct {
 	Msg  string      `json:"msg"`
 }
 
-func Return(c *gin.Context, code ECode, data interface{}, msg ...string) {
+func ReturnParamErr(c *gin.Context)  {
+	Return(c, ECodeParamErr, nil)
+}
+
+func Return(c *gin.Context, err error, data interface{}, msg ...string) {
+	code, ok := err.(ECode)
+	if !ok {
+		code = NewErrorCode(err)
+	}
 	if code.GetCode() == 0 {
 		code = ECodeUnknownErr
 	}
