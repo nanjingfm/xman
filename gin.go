@@ -32,6 +32,12 @@ func (e *Engine) Run(addr ...string) {
 	LogError("Run http", "err", err)
 }
 
+func (e *Engine) RegisterRoute(list []R) {
+	for _, item := range list {
+		item.Register(e.Engine)
+	}
+}
+
 func LoadTls() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		middleware := secure.New(secure.Options{
