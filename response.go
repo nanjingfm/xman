@@ -12,8 +12,12 @@ type Response struct {
 	Msg  string      `json:"msg"`
 }
 
-func ReturnParamErr(c *gin.Context)  {
+func ReturnParamErr(c *gin.Context) {
 	Return(c, ECodeParamErr, nil)
+}
+
+func ReturnPermDenyErr(c *gin.Context) {
+	Return(c, ECodePermDenyErr, nil)
 }
 
 func Return(c *gin.Context, err error, data interface{}, msg ...string) {

@@ -5,11 +5,12 @@ import (
 )
 
 var (
-	ECodeSuccess    = NewCode(1001)
-	ECodeSystemErr  = NewCode(-1) // 系统错误
-	ECodeUnknownErr = NewCode(-2) // 未知错误
-	ECodeCaptchaErr = NewCode(-3) // 验证码错误
-	ECodeParamErr   = NewCode(-4) // 参数错误
+	ECodeSuccess     = NewCode(1001)
+	ECodeSystemErr   = NewCode(-1) // 系统错误
+	ECodeUnknownErr  = NewCode(-2) // 未知错误
+	ECodeCaptchaErr  = NewCode(-3) // 验证码错误
+	ECodeParamErr    = NewCode(-4) // 参数错误
+	ECodePermDenyErr = NewCode(-5) // 没有权限
 )
 
 type Coder interface {
