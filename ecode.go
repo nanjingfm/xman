@@ -57,15 +57,18 @@ func (p ECode) Error() string {
 	return p.Msg
 }
 
+func (p ECode) getCodeStr() string {
+	return strconv.Itoa(p.Code)
+}
+
 func (p ECode) getCodeKey() string {
-	codeStr := strconv.Itoa(p.Code)
-	return "code." + codeStr
+	return "code." + p.getCodeStr()
 }
 
 func (p ECode) GetLocaleMsg(l Locale) string {
 	key := p.getCodeKey()
 	str := l.Tr(key)
-	if str == key {
+	if str == key || str == p.getCodeStr() {
 		if msg := p.GetMsg(); msg != "" {
 			return msg
 		} else {

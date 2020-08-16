@@ -9,6 +9,14 @@ import (
 
 var InvalidMysqlConfig = errors.New("invalid mysql Config")
 
+func InsertIgnore() (string, interface{}) {
+	return "gorm:insert_modifier", "IGNORE"
+}
+
+func InsertOnDuplicate(updateRule string) (string, interface{}) {
+	return "gorm:insert_modifier", "ON DUPLICATE KEY UPDATE " + updateRule
+}
+
 type DB struct {
 	DbType       string `mapstructure:"db_type" yaml:"db_type"`
 	Dsn          string `mapstructure:"dsn" yaml:"dsn"`
