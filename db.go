@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"strings"
 )
 
 var InvalidMysqlConfig = errors.New("invalid mysql Config")
@@ -13,8 +14,8 @@ func InsertIgnore() (string, interface{}) {
 	return "gorm:insert_modifier", "IGNORE"
 }
 
-func InsertOnDuplicate(updateRule string) (string, interface{}) {
-	return "gorm:insert_modifier", "ON DUPLICATE KEY UPDATE " + updateRule
+func InsertOnDuplicate(updateRule ...string) (string, interface{}) {
+	return "gorm:insert_option", "ON DUPLICATE KEY UPDATE " + strings.Join(updateRule, ",")
 }
 
 type DB struct {
